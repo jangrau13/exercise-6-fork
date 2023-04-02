@@ -22,7 +22,7 @@ blinds("lowered").
 */
 @start_plan
 +!start : td("https://was-course.interactions.ics.unisg.ch/wake-up-ontology#Blinds", Url) <-
-    makeArtifact("blinds", "org.hyperagents.jacamo.artifacts.wot.ThingArtifact", [Url, true], ArtId);
+    makeArtifact("blinds", "org.hyperagents.jacamo.artifacts.wot.ThingArtifact", [Url], ArtId);
     .print("Hello world").
 
 @raise_blinds
@@ -32,7 +32,7 @@ blinds("lowered").
 @set_blinds_state
 +!set_blinds_state(State) : true <-
     .print("invoking raising action");
-    invokeAction("https://was-course.interactions.ics.unisg.ch/wake-up-ontology#SetState",  ["https://www.w3.org/2019/wot/json-schema#StringSchema"],["raised"])[ArtId];
+    invokeAction("https://was-course.interactions.ics.unisg.ch/wake-up-ontology#SetState",[State])[ArtId];
     -+blinds(State);
     .print("setting state: ", State).
 
@@ -76,6 +76,8 @@ blinds("lowered").
     !raise_blinds;
     +sending_success(Proposal)[source(Controller)].
 
+-!raise_blinds : true <-
+    .send(personal_assistant, tell, failure("blinds")).
 
 @sending_failure
 +send_failure(Proposal)[source(Controller)] : true <-

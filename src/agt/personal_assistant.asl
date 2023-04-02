@@ -34,11 +34,16 @@ get_help_from_a_friend :- rank(2) & owner_state("asleep").
 
 +upcoming_event("now") : owner_state("asleep") <-
     .print("starting wake-up routine");
-    .broadcast(tell, cfp("wake-up")[deadline(1000)]).
+    !wake_up_routine.
+
++!wake_up_routine : owner_state("asleep") <-
+    .broadcast(tell, cfp("wake-up")[deadline(1000)]);
+    .print("broadcastingj");
+    !wake_up_routine.
 
 +owner_state("asleep") : owner_state("asleep") <-
     .print("starting wake-up routine");
-    .broadcast(tell, cfp("wake-up")[deadline(1000)]).
+    !wake_up_routine.
 
 +propose(Proposal)[cfp("wake-up"), source(Controller)] : true <-
     .print("evaluating proposal:", Proposal);

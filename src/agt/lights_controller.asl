@@ -49,10 +49,47 @@ lights("off").
     .print("state ", State);
     .send(personal_assistant, tell, lights(State)).
 
-@cfp_wake_up
-+cfp_wake_up : true <- 
-    .print("received cfp for waking up");
-    .send(personal_assistant, tell, cfp_wake_up_proposal("lights")).
+@cfp_wake_up_reject
++cfp("wake-up")[source(Controller)] : lights("on") <- 
+    .print("received cfp for waking up, but lights are already on or deadline is expired");
+    .send(Controller, tell, refuse("wake-up")).
+
+@cfp_wake_up_propose
++cfp("wake-up")[source(Controller)] :  lights("off") <- 
+    .print("received cfp for waking up and sending proposal ", "lights");
+    .send(Controller, tell, propose("lights")[cfp("wake-up")]).
+
+@got_a_rejection
++reject_proposal(Proposal)[source(Controller)] : true <-
+    .print("I dare you ", Controller);
+    .print("I double dare you ", Controller).
+
+@got_an_accept
++accept_proposal(Proposal)[source(Controller)] : true <-
+    .print("Thank you ", Controller, " for your trust in me.");
+    !execute_proposal(Proposal)[source(Controller)].
+
+@executing_proposal
++!execute_proposal(Proposal)[source(Controller)]: true <-
+    .print("executing ", Proposal, " for ", Controller);
+    !lights_on;
+    +sending_success(Proposal)[source(Controller)].
+
+-!lights_on : true <-
+    .send(personal_assistant, tell, failure("blinds")).
+
+@sending_failure
++send_failure(Proposal)[source(Controller)] : true <-
+    .print("sending failure");
+    .send(Controller, tell, failure(Proposal)).
+
+@sending_success
++sending_success(Proposal)[source(Controller)]: true <-
+    .print("sending success");
+    .send(Controller, tell, inform_done(Proposal));
+    ?lights(Result);
+    .print("current result state ", Result);
+    .send(Controller, tell, inform_result(Result)).
 
 
 
