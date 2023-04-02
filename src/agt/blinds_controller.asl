@@ -53,11 +53,13 @@ blinds("lowered").
 @cfp_wake_up_reject
 +cfp("wake-up")[source(Controller)] : blinds("raised") <- 
     .print("received cfp for waking up, but blinds are already raised or deadline is expired");
+    -cfp("wake-up")[source(Controller)];
     .send(Controller, tell, refuse("wake-up")).
 
 @cfp_wake_up_propose
 +cfp("wake-up")[source(Controller)] :  blinds("lowered") <- 
     .print("received cfp for waking up and sending proposal ", "blinds");
+    -cfp("wake-up")[source(Controller)];
     .send(Controller, tell, propose("blinds")[cfp("wake-up")]).
 
 @got_a_rejection

@@ -31,20 +31,21 @@ lights("off").
 
 @set_lights_state
 +!set_lights_state(State) : true <-
-    invokeAction("https://was-course.interactions.ics.unisg.ch/wake-up-ontology#SetState",  ["https://www.w3.org/2019/wot/json-schema#StringSchema"], [State])[ArtId];
+    invokeAction("https://was-course.interactions.ics.unisg.ch/wake-up-ontology#SetState", [State])[ArtId];
     -+lights(State);
     .print("setting state: ", State).
 
 @put_lights_on
 +!lights_on : true <-
-    !set_blinds_state("lowered").
+    .print("turning lights on");
+    !set_lights_state("on").
 
 @put_lights_off
 +!lights_off : true <-
-    .print("raising the blinds");
-    !set_blinds_state("off").
+    .print("turning lights off");
+    !set_lights_state("off").
 
-@lights
+@lights 
 +lights(State) : true <-
     .print("state ", State);
     .send(personal_assistant, tell, lights(State)).
@@ -52,21 +53,25 @@ lights("off").
 @cfp_wake_up_reject
 +cfp("wake-up")[source(Controller)] : lights("on") <- 
     .print("received cfp for waking up, but lights are already on or deadline is expired");
+    -cfp("wake-up")[source(Controller)];
     .send(Controller, tell, refuse("wake-up")).
 
 @cfp_wake_up_propose
 +cfp("wake-up")[source(Controller)] :  lights("off") <- 
     .print("received cfp for waking up and sending proposal ", "lights");
+    -cfp("wake-up")[source(Controller)];
     .send(Controller, tell, propose("lights")[cfp("wake-up")]).
 
 @got_a_rejection
 +reject_proposal(Proposal)[source(Controller)] : true <-
     .print("I dare you ", Controller);
-    .print("I double dare you ", Controller).
+    .print("I double dare you ", Controller);
+    -reject_proposal(Proposal)[source(Controller)].
 
 @got_an_accept
 +accept_proposal(Proposal)[source(Controller)] : true <-
     .print("Thank you ", Controller, " for your trust in me.");
+    -accept_proposal(Proposal)[source(Controller)];
     !execute_proposal(Proposal)[source(Controller)].
 
 @executing_proposal

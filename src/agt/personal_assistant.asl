@@ -7,8 +7,6 @@ rank(0).
 /*inference rules */
 handle("lights") :- rank(1).
 handle("blinds") :- rank(0).
-get_help_from_a_friend :- rank(2) & owner_state("asleep").
-
 
 /* Initial goals */ 
 
@@ -28,18 +26,26 @@ get_help_from_a_friend :- rank(2) & owner_state("asleep").
     focus(Dweeter).
 
 
-+get_help_from_a_friend : true <-
++!get_help_from_a_friend : true <-
+    .print("sending dweet");
     sendDweet("please help me to wake up my user");
     !upgrade_rank.
 
-+upcoming_event("now") : owner_state("asleep") <-
++upcoming_event("now") : owner_state("asleep") & not refuse("wake-up")[source(blinds_controller),source(lights_controller)] <-
     .print("starting wake-up routine");
     !wake_up_routine.
 
-+!wake_up_routine : owner_state("asleep") <-
-    .broadcast(tell, cfp("wake-up")[deadline(1000)]);
-    .print("broadcastingj");
++!wake_up_routine : refuse("wake-up")[source(blinds_controller),source(lights_controller)]<-
+    .print("okay, need outside help");
+    !get_help_from_a_friend.
+
++!wake_up_routine : owner_state("asleep") & not refuse("wake-up")[source(blinds_controller),source(lights_controller)] <-
+    .broadcast(tell, cfp("wake-up"));
+    .wait(4000);
     !wake_up_routine.
+
++!wake_up_routine : owner_state("awake") <-
+    .print("awake, but at what cost").
 
 +owner_state("asleep") : owner_state("asleep") <-
     .print("starting wake-up routine");
@@ -47,6 +53,7 @@ get_help_from_a_friend :- rank(2) & owner_state("asleep").
 
 +propose(Proposal)[cfp("wake-up"), source(Controller)] : true <-
     .print("evaluating proposal:", Proposal);
+    -propose(Proposal)[cfp("wake-up"), source(Controller)];
     !handle_proposal(Proposal)[source(Controller)].
 
 
