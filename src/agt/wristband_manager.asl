@@ -39,7 +39,9 @@ owner_state(_).
 +!read_owner_state : true <-
     // performs an action that exploits the TD Property Affordance of type was:ReadOwnerState 
     // the action unifies OwnerStateLst with a list holding the owner's state, e.g. ["asleep"]
+    
     readProperty("https://was-course.interactions.ics.unisg.ch/wake-up-ontology#ReadOwnerState",  OwnerStateLst);
+    .print("reading owner State");
     .nth(0,OwnerStateLst,OwnerState); // performs an action that unifies OwnerState with the element of the list OwnerStateLst at index 0
     -+owner_state(OwnerState); // updates the beleif owner_state 
     .wait(5000);
@@ -53,7 +55,8 @@ owner_state(_).
 */
 @owner_state_plan
 +owner_state(State) : true <-
-    .print("The owner is ", State).
+    .print("The owner is ", State);
+    .send(personal_assistant, tell, owner_state(State)).
 
 /* Import behavior of agents that work in CArtAgO environments */
 { include("$jacamoJar/templates/common-cartago.asl") }

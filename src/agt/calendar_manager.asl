@@ -19,7 +19,24 @@ td("https://was-course.interactions.ics.unisg.ch/wake-up-ontology#CalendarServic
 */
 @start_plan
 +!start : td("https://was-course.interactions.ics.unisg.ch/wake-up-ontology#CalendarService", Url) <-
-    .print("Hello world").
+    .print("Hello world");
+    makeArtifact("calenderService", "org.hyperagents.jacamo.artifacts.wot.ThingArtifact", [Url], ArtId);
+    .print("initatiated the calender service thing");
+    !reactToUpcomingEvent.
+
+@upcoming_event_listener
++!reactToUpcomingEvent : true <-
+    readProperty("https://was-course.interactions.ics.unisg.ch/wake-up-ontology#ReadUpcomingEvent",  EventStateLst);
+    .print("reading upcoming event");
+    .nth(0,EventStateLst,EventState); // performs an action that unifies OwnerState with the element of the list OwnerStateLst at index 0
+    -+upcoming_event(EventState); // updates the beleif owner_state 
+    .wait(5000);
+    !reactToUpcomingEvent. // creates the goal !read_owner_state
+
+@upcoming_event
++upcoming_event(Event) : true <- 
+    .print("new upcoming event: ", Event);
+    .send(personal_assistant, tell, upcoming_event(Event)).
 
 /* Import behavior of agents that work in CArtAgO environments */
 { include("$jacamoJar/templates/common-cartago.asl") }
