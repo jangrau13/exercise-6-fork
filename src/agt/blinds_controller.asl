@@ -33,11 +33,13 @@ blinds("lowered").
 +!set_blinds_state(State) : true <-
     .print("invoking raising action");
     invokeAction("https://was-course.interactions.ics.unisg.ch/wake-up-ontology#SetState",[State])[ArtId];
+    .wait(1000);
     -+blinds(State);
     .print("setting state: ", State).
 
 @exec_lower_blinds
 +!lower_blinds : true <-
+    .print("lowering the blinds");
     !set_blinds_state("lowered").
 
 @exec_raise_blinds
